@@ -3,6 +3,7 @@
     <title>Flask Intro - login page</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="static/js/bootstrap.min.css" rel="stylesheet" media="screen">
+  <script src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -13,7 +14,7 @@
           request.data.username }}">
          <input type="password" placeholder="Password" id="pwd" name="password" value="{{
           request.data.password }}">
-        <input class="btn btn-default" type="submit" value="Login">
+        <input class="btn btn-default" id="bt" type="button" onclick="return false;" value="Login">   
       </form>
       {% if error %}
         <p class="error"><strong>Error:</strong> {{ error }}
@@ -24,19 +25,32 @@
 
 <script>
 
-$(.container).ready(function () {    
-    $.ajax({ 
-        type : 'post', 
-        url : 'admin/register', 
-        data : {
-            username:$("#name").val(),
-            password:$("#pwd").val()
-            }, 
-        success : function() { console.log("登录成功"); }, 
+$(function(){
+  $("#bt").click(function(){
+    post();
+  })
+})
+
+function post(){
+
+  data={username:$("#name").val(), password:$("#pwd").val()}
+  console.log(JSON.stringify(data))
+    $.ajax({
+        type : 'POST', 
+        url : 'login', 
+        ContentType: "application/json;charset=utf-8",
+        dataType : 'json',
+        data : JSON.stringify(data), 
+        //json 转成字符串
+        success : function(data) { console.log("登录成功",data); }, 
         error : function(xhr, textStatus, errorThrown) {
             console.log("登录失败"); 
             var msg = xhr.responseText; 
-            var response = JSON.parse(msg); 
-            console.log(response); } 
-        });
+            console.log(textStatus)
+          //  var response = JSON.parse(msg); 
+        //    console.log(response); } 
+        }})
+}
+
+
 </script>

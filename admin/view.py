@@ -179,7 +179,7 @@ def landpage1():
    # response = request.post(url='url', headers=headers, data=json.dumps(data))    ## post的时候，将data字典形式的参数用json包转换成json格式。
     return render_template("index.html",title="----test----",time=data)
 
-@admin_bp.route('/login',methods=['GET','POST'])
+@admin_bp.route('/login',methods=['GET','POST'])  #一般情况要get post 方法分开写
 # def login():
 #     error = None
 #     if request.method == 'POST':
@@ -191,12 +191,13 @@ def landpage1():
 #     return render_template('login.html', error=error)
 
 def login1():
-    data = request.get_json()
-    jsondata=json.load(data)
-    username = jsondata['username']
-    password = jsondata['password']
-    print('username',username)
     if request.method == 'POST':
-        return jsonify({"logignname": username,"logignpwd": password})
-    
-    return render_template('login.html', title="",data={username:"",password:""})
+        data = request.get_data()   #字符串
+        print("etdata----",data)
+        jsondata=json.loads(data)   #字符串转化成对象  一般字典类型，哈希表，map json解析成字典类型 key:value
+        username = jsondata['username']
+        password = jsondata['password']
+        return jsonify({"logignname": "username","logignpwd": "password"})  #对象再转换成字符串
+    return render_template('login.html', title="",data={"username":"","password":""})
+
+#下一步数据库拿数据验证登录 
