@@ -179,7 +179,7 @@ def landpage1():
    # response = request.post(url='url', headers=headers, data=json.dumps(data))    ## post的时候，将data字典形式的参数用json包转换成json格式。
     return render_template("index.html",title="----test----",time=data)
 
-@admin_bp.route('/login',methods=['GET','POST'])  #一般情况要get post 方法分开写
+# @admin_bp.route('/login',methods=['GET','POST'])  #一般情况要get post 方法分开写
 # def login():
 #     error = None
 #     if request.method == 'POST':
@@ -190,14 +190,51 @@ def landpage1():
 #             return redirect('admin/hello')
 #     return render_template('login.html', error=error)
 
-def login1():
-    if request.method == 'POST':
-        data = request.get_data()   #字符串
-        print("etdata----",data)
-        jsondata=json.loads(data)   #字符串转化成对象  一般字典类型，哈希表，map json解析成字典类型 key:value
-        username = jsondata['username']
-        password = jsondata['password']
-        return jsonify({"logignname": "username","logignpwd": "password"})  #对象再转换成字符串
-    return render_template('login.html', title="",data={"username":"","password":""})
+# def login1():
+#     if request.method == 'POST':
+#         data = request.get_data()   #字符串
+#         print("etdata----",data)
+#         jsondata=json.loads(data)   #字符串转化成对象  一般字典类型，哈希表，map json解析成字典类型 key:value
+#         username = jsondata['username']
+#         password = jsondata['password']
+#         return jsonify({"logignname": "username","logignpwd": "password"})  #对象再转换成字符串
+#     return render_template('login.html', title="",data={"username":"","password":""})
 
 #下一步数据库拿数据验证登录 
+
+@admin_bp.route('/login',methods=['POST'])
+def login1():
+    data = request.get_data()
+    jsondata = json.loads(data)  #将json字符串解码为python对象
+    username = jsondata['username']
+    password = jsondata['password']
+    db = pymysql.connect("127.0.0.1","root","123456","TESTDB" )
+    #使用 cursor() 方法创建一个游标对象 cursor
+    cursor = db.cursor()
+    # 使用 execute()  方法执行 SQL 查询 
+    cursor.execute("SELECT * from register where name='username' AND pwd='password'" )
+#   此处应该怎么写呢？取出来之后，如果值不为空，则返回true？
+    # 使用 fetchone() 方法获取单条数据.
+    data = cursor.fetchall()
+    print(data)
+    # 关闭数据库连接
+    cursor.close()
+    db.close()
+
+    # for i in range(len(data)) :
+    #         for j in range(len(data[i])):
+    #              #print("data[",i,"][",j,"]=",end=""),#一种显示方法
+    #             #print("data[%d]"%i,"[%d]="%j,end=""),#另一种显示方法
+    #              print("data[%d][%d]"%(i,j))
+    #              if i == j:
+    #                 print(data[i][j],"")
+
+                    #问题在不会操作元组数据
+
+    return jsonify({"logignname": "username","logignpwd": "password"})  #对象再转换成字符串
+
+@admin_bp.route('/login',methods=['GET'])
+def login2():
+    return render_template('login.html', title="",data={"username":"","password":""})
+
+
