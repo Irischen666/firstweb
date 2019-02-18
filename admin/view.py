@@ -225,7 +225,7 @@ def login1():
     cursor = db.cursor()
     # 使用 execute()  方法执行 SQL 查询 
     #参数化sql语句
-    sql = "SELECT * from register where name = %s and pwd = %s " 
+    sql = "SELECT * from register where name = %s and pwd = %s "
     # %用，号代替的时候，出现元组，后面不用带,(username,password)
     print(sql)
     code=1;
@@ -235,23 +235,41 @@ def login1():
         # 获取所有记录列表
         results = cursor.fetchall()
         print (results)
-        for row in results:
-                uid = row[0]  #row 列
-                print(uid)
-                if uid>0:
-                    code = 0;   #str( ) 把对象转为string类型  str[]数组里面按照下标去取
-                    flash("登录成功");                    
-                    break;
-                if uid == 0:
-                    code = 1;
-                    flash("用户名或密码错误");
+        if len(results)>0:
+            code = 0;                  
+        else:
+            code = 1;
     except Exception as e:
         print("has Error: ",e)
     db.close();
-    return jsonify({"code":"","data":"username"})
+    return jsonify({"code":code,"data":username})  
 
 @admin_bp.route('/login',methods=['GET'])
 def login2():
     return render_template('login.html', title="",data={"username":"","password":""})
 
+
+#总结
+  #str( ) 把对象转为string类型  str[]数组里面按照下标去取       
+  #不需要用flash 
+  #字典类型的对象不会用  取看别人接API是怎么用的
+  #找错误 全部注释掉 看运行结果  一行一行的注释 精确定位问题
+  #print (results) 
+        #if len(results)>0:
+            #code = 0;                  
+        #else:
+            #code = 1;
+#sql语句
+ #sql = "SELECT * from register where name = %s and pwd = %s "
+    ##一个等号就可以了，错误的用了==，name=%s %s 不加引号
+    # %用，号代替的时候，出现元组，后面不用带,(username,password)
+   # print(sql)
+   # code=1;
+    #try:
+        # 执行SQL语句
+       # cursor.execute(sql,(username,password))
+
+# return jsonify({"code":code,"data":username})  
+##传过去的是字典类型的对象，对象转化为字符串，key值用引号，value可以直接拿来用不用打引号，
+# #{"code":code,"data":username}整个传到前端的data里面，前端的data和后段的data不是一个 
 
