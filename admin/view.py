@@ -218,14 +218,16 @@ def login1():
         password = "123456",
         database = "TESTDB",
         charset = 'utf8',
-        cursorclass = pymysql.cursors.DictCursor
+        # cursorclass = pymysql.cursors.DictCursor
+        # 将元祖转化为字典
         )
     #使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
     # 使用 execute()  方法执行 SQL 查询 
-    #   此处应该怎么写呢？取出来之后，如果值不为空，则返回true？ #参数化sql语句
-    sql = "SELECT * from register where name = %s and pwd = %s " % (username,password)
+    #参数化sql语句
+    sql = "SELECT * from register where name = %s and pwd = %s " 
     # %用，号代替的时候，出现元组
+    print(sql)
     last=False;
     try:
         # 执行SQL语句
