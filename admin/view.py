@@ -205,33 +205,43 @@ def landpage1():
 @admin_bp.route('/login',methods=['POST'])
 def login1():
     data = request.get_data()
+    print('data：',type(data),data)
     jsondata = json.loads(data)  #将json字符串解码为python对象
+    print ("jsondata；",type(jsondata),jsondata)
     username = jsondata['username']
+    print ("username：",type(username ),username)
     password = jsondata['password']
-    db = pymysql.connect("127.0.0.1","root","123456","TESTDB" )
+    print("password：",type(password),password)
+    db = pymysql.connect(
+        host = "127.0.0.1",
+        user = "root",
+        password = "123456",
+        database = "TESTDB",
+        charset = 'utf8',
+        cursorclass = pymysql.cursors.DictCursor
+        )
     #使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
     # 使用 execute()  方法执行 SQL 查询 
-    cursor.execute("SELECT * from register where name='username' AND pwd='password'" )
-#   此处应该怎么写呢？取出来之后，如果值不为空，则返回true？
-    # 使用 fetchone() 方法获取单条数据.
-    data = cursor.fetchall()
-    print(data)
-    # 关闭数据库连接
-    cursor.close()
-    db.close()
-
-    # for i in range(len(data)) :
-    #         for j in range(len(data[i])):
-    #              #print("data[",i,"][",j,"]=",end=""),#一种显示方法
-    #             #print("data[%d]"%i,"[%d]="%j,end=""),#另一种显示方法
-    #              print("data[%d][%d]"%(i,j))
-    #              if i == j:
-    #                 print(data[i][j],"")
-
-                    #问题在不会操作元组数据
-
-    return jsonify({"logignname": "username","logignpwd": "password"})  #对象再转换成字符串
+    #   此处应该怎么写呢？取出来之后，如果值不为空，则返回true？ #参数化sql语句
+    sql = "SELECT * from register where name = %s and pwd = %s " % (username,password)
+    # %用，号代替的时候，出现元组
+    last=False;
+    try:
+        # 执行SQL语句
+        cursor.execute(sql,(username,password))
+        # 获取所有记录列表
+        results = cursor.fetchall()
+        print (results)
+        for row in results:
+                uid = row[0]
+                if uid>0:
+                    last = True;                    
+                    break;
+    except Exception as e:
+        print("has Error: ",e)
+    db.close();
+    return jsonify(last)  ;
 
 @admin_bp.route('/login',methods=['GET'])
 def login2():

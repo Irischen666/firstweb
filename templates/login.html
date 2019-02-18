@@ -42,7 +42,7 @@ function post(){
         dataType : 'json',
         data : JSON.stringify(data), 
         //json 转成字符串
-        success : function(data) { console.log("登录成功",data); }, 
+        success : function(last) { console.log("登录成功",data); }, 
         error : function(xhr, textStatus, errorThrown) {
             console.log("登录失败"); 
             var msg = xhr.responseText; 
