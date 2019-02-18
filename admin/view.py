@@ -239,16 +239,16 @@ def login1():
                 uid = row[0]  #row 列
                 print(uid)
                 if uid>0:
-                    code = str[0];
+                    code = 0;   #str( ) 把对象转为string类型  str[]数组里面按照下标去取
                     flash("登录成功");                    
                     break;
                 if uid == 0:
-                    code = str[1];
+                    code = 1;
                     flash("用户名或密码错误");
     except Exception as e:
         print("has Error: ",e)
     db.close();
-    return jsonify({code:"",data:jsondata})
+    return jsonify({"code":"","data":"username"})
 
 @admin_bp.route('/login',methods=['GET'])
 def login2():
