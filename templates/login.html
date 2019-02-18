@@ -42,13 +42,15 @@ function post(){
         dataType : 'json',
         data : JSON.stringify(data), 
         //json 转成字符串
-        success : function login () { 
-            if (last == 'true'){
+        success : function login (data) { 
+            if (code == 0){
                 console.log("登录成功",data.username);
+                alert('msg');
             } else {
                 console.log("用户名或者密码错误");
+                alert('msg');
             }
-            }
+            },
         error : function(xhr, textStatus, errorThrown) {
             console.log("登录失败"); 
             var msg = xhr.responseText; 

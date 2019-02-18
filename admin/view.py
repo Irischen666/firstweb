@@ -1,7 +1,7 @@
 from . import admin_bp
 from flask import render_template
 import pymysql
-from flask import request,redirect, url_for ,jsonify
+from flask import request,redirect, url_for ,jsonify,flash
 import json
 # from flask import current_app as app
 
@@ -226,9 +226,9 @@ def login1():
     # 使用 execute()  方法执行 SQL 查询 
     #参数化sql语句
     sql = "SELECT * from register where name = %s and pwd = %s " 
-    # %用，号代替的时候，出现元组
+    # %用，号代替的时候，出现元组，后面不用带,(username,password)
     print(sql)
-    last=False;
+    code=1;
     try:
         # 执行SQL语句
         cursor.execute(sql,(username,password))
@@ -236,14 +236,19 @@ def login1():
         results = cursor.fetchall()
         print (results)
         for row in results:
-                uid = row[0]
+                uid = row[0]  #row 列
+                print(uid)
                 if uid>0:
-                    last = True;                    
+                    code = str[0];
+                    flash("登录成功");                    
                     break;
+                if uid == 0:
+                    code = str[1];
+                    flash("用户名或密码错误");
     except Exception as e:
         print("has Error: ",e)
     db.close();
-    return jsonify(last)  ;
+    return jsonify({code:"",data:jsondata})
 
 @admin_bp.route('/login',methods=['GET'])
 def login2():
