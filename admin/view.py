@@ -1,8 +1,8 @@
 from . import admin_bp
-from flask import render_template
+from flask import render_template, request,redirect, url_for ,jsonify,flash
 import pymysql
-from flask import request,redirect, url_for ,jsonify,flash
 import json
+import time
 # from flask import current_app as app
 
 #  蓝图对象 admin_bp 注册访问地址 如下：
@@ -31,24 +31,24 @@ def hello_world():
     return FIRST_NAME
 
 
-@admin_bp.route('/register', methods=['POST'])
-def register():
+# @admin_bp.route('/register', methods=['POST'])
+# def register():
 
-    name=request.form["username"];
-    pwd = request.form["password"];
+#     name=request.form["username"];
+#     pwd = request.form["password"];
 
 
-    db = pymysql.connect("127.0.0.1","root","123456","TESTDB" )
-    cursor = db.cursor()
-    sql = """INSERT INTO register(name, pwd) VALUES (%s,%s)"""
-    try:
-        cursor.execute(sql,(name,pwd))
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        return "err:"+ str(e)
-    db.close()
-    return 'you name : %s you pwd %s' %(name,pwd)
+#     db = pymysql.connect("127.0.0.1","root","123456","TESTDB" )
+#     cursor = db.cursor()
+#     sql = """INSERT INTO register(name, pwd) VALUES (%s,%s)"""
+#     try:
+#         cursor.execute(sql,(name,pwd))
+#         db.commit()
+#     except Exception as e:
+#         db.rollback()
+#         return "err:"+ str(e)
+#     db.close()
+#     return 'you name : %s you pwd %s' %(name,pwd)
 
 
 
@@ -201,38 +201,27 @@ def landpage1():
 #     return render_template('login.html', title="",data={"username":"","password":""})
 
 #下一步数据库拿数据验证登录 
-
+#登录
 @admin_bp.route('/login',methods=['POST'])
 def login1():
     data = request.get_data()
-    print('data：',type(data),data)
     jsondata = json.loads(data)  #将json字符串解码为python对象
-    print ("jsondata；",type(jsondata),jsondata)
     username = jsondata['username']
-    print ("username：",type(username ),username)
     password = jsondata['password']
-    print("password：",type(password),password)
     db = pymysql.connect(
         host = "127.0.0.1",
         user = "root",
         password = "123456",
         database = "TESTDB",
         charset = 'utf8',
-        # cursorclass = pymysql.cursors.DictCursor
-        # 将元祖转化为字典
         )
-    #使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
-    # 使用 execute()  方法执行 SQL 查询 
-    #参数化sql语句
     sql = "SELECT * from register where name = %s and pwd = %s "
-    # %用，号代替的时候，出现元组，后面不用带,(username,password)
     print(sql)
     code=1;
     try:
         # 执行SQL语句
         cursor.execute(sql,(username,password))
-        # 获取所有记录列表
         results = cursor.fetchall()
         print (results)
         if len(results)>0:
@@ -248,28 +237,101 @@ def login1():
 def login2():
     return render_template('login.html', title="",data={"username":"","password":""})
 
+#注册功能
+@admin_bp.route('/register', methods = ['GET'])
+def signup():
+    return render_template('register.html',title="注册")
 
-#总结
-  #str( ) 把对象转为string类型  str[]数组里面按照下标去取       
-  #不需要用flash 
-  #字典类型的对象不会用  取看别人接API是怎么用的
-  #找错误 全部注释掉 看运行结果  一行一行的注释 精确定位问题
-  #print (results) 
-        #if len(results)>0:
-            #code = 0;                  
-        #else:
-            #code = 1;
-#sql语句
- #sql = "SELECT * from register where name = %s and pwd = %s "
-    ##一个等号就可以了，错误的用了==，name=%s %s 不加引号
-    # %用，号代替的时候，出现元组，后面不用带,(username,password)
-   # print(sql)
-   # code=1;
-    #try:
+@admin_bp.route('/register', methods = ['POST'])
+def signup1():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    print(username,password,type(username))
+    db = pymysql.connect(
+        host = "127.0.0.1",
+        user = "root",
+        password = "123456",
+        database = "TESTDB",
+        charset = 'utf8',
+        )
+    cursor = db.cursor()
+    sql = "SELECT * from register where name = %s" 
+    code = 1
+    try:
         # 执行SQL语句
-       # cursor.execute(sql,(username,password))
+        cursor.execute(sql,username)
+        results = cursor.fetchall()
+        print (results)
+        if len(results)>0:   #已经存在
+            code = 0
+        else:
+            code = 1 
+            sql = "INSERT INTO register(name,pwd) VALUE(%s,%s)"
+            cursor.execute(sql,(username,password))
+            db.commit();
+    except Exception as e:
+        print("has Error: ",e)
+        return render_template("error_page.html",error=e)
+    db.close();
+    return jsonify({"code":code,"username":username})
 
-# return jsonify({"code":code,"data":username})  
-##传过去的是字典类型的对象，对象转化为字符串，key值用引号，value可以直接拿来用不用打引号，
-# #{"code":code,"data":username}整个传到前端的data里面，前端的data和后段的data不是一个 
 
+#留言板功能
+@admin_bp.route('/liuyan',methods=['GET'])
+def liuyan():
+    db = pymysql.connect(
+        host = "127.0.0.1",
+        user = "root",
+        password = "123456",
+        database = "TESTDB",
+        charset = 'utf8',
+        cursorclass= pymysql.cursors.DictCursor
+        )
+    cursor = db.cursor()
+    sql = "SELECT name,comment,creat_at from liuyanbd"
+    cursor.execute(sql)
+    results = cursor.fetchall()    #字典的数组
+    db.close();
+    print(results)
+    greeting_list=jsonify(results)
+    return render_template('liuyan.html',greeting_list=results)
+
+@admin_bp.route('/liuyan',methods=['POST'])
+def liuyan1():
+    name = request.form.name
+    comment = request.form.comment
+    # 格式化成2016-03-20 11:45:39形式 
+    create_at =time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())  
+    print(name,comment,type(name))
+    db = pymysql.connect(
+        host = "127.0.0.1",
+        user = "root",
+        password = "123456",
+        database = "TESTDB",
+        charset = 'utf8',
+        )
+    cursor = db.cursor()
+    sql = "INSERT INTO liuyanbd(name,comment,create_at)  VALUES (?, ?, ?) "
+    try:
+        # 执行sql语句
+        cursor.execute(sql,(name,comment,create_at))
+        # 提交到数据库执行
+        db.commit()
+    except:
+        # 如果发生错误则回滚
+        db.rollback()
+    
+    sql = "SELECT name,comment,creat_at from liuyanbd"
+    cursor.execute(sql)
+    results = cursor.fetchall() 
+    db.close()
+    print(results)
+    greeting_list=jsonify(results)
+    return render_template('liuyan.html',greeting_list=results)
+
+    
+
+
+
+
+    return render_template('liuyan.html',greeting_list=results)
