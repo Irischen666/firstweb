@@ -328,10 +328,3 @@ def liuyan1():
     print(results)
     greeting_list=jsonify(results)
     return render_template('liuyan.html',greeting_list=results)
-
-    
-
-
-
-
-    return render_template('liuyan.html',greeting_list=results)
