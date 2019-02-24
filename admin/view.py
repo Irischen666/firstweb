@@ -2,7 +2,7 @@ from . import admin_bp
 from flask import render_template, request,redirect, url_for ,jsonify,flash
 import pymysql
 import json
-import time
+import time,datetime
 # from flask import current_app as app
 
 #  蓝图对象 admin_bp 注册访问地址 如下：
@@ -298,20 +298,22 @@ def liuyan():
 
 @admin_bp.route('/liuyan',methods=['POST'])
 def liuyan1():
-    name = request.form.name
-    comment = request.form.comment
+    name = request.form.get("name",type=str,default=None)
+    comment = request.form.get("comment",type=str,default=None)
     # 格式化成2016-03-20 11:45:39形式 
-    create_at =time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())  
-    print(name,comment,type(name))
+    dt=datetime.datetime.now()
+    create_at=dt.strftime('%Y-%m-%d %H:%M:%S')
+    print(name,comment,create_at,type(create_at))
     db = pymysql.connect(
         host = "127.0.0.1",
         user = "root",
         password = "123456",
         database = "TESTDB",
         charset = 'utf8',
+        cursorclass= pymysql.cursors.DictCursor
         )
     cursor = db.cursor()
-    sql = "INSERT INTO liuyanbd(name,comment,create_at)  VALUES (?, ?, ?) "
+    sql = "INSERT INTO liuyanbd(name,comment,create_at)  VALUES (%s, %s,%s) "
     try:
         # 执行sql语句
         cursor.execute(sql,(name,comment,create_at))
@@ -321,10 +323,11 @@ def liuyan1():
         # 如果发生错误则回滚
         db.rollback()
     
-    sql = "SELECT name,comment,creat_at from liuyanbd"
+    sql = "SELECT name,comment,create_at from liuyanbd"
     cursor.execute(sql)
     results = cursor.fetchall() 
     db.close()
     print(results)
     greeting_list=jsonify(results)
-    return render_template('liuyan.html',greeting_list=results)
+    return render_template('liuyan.html', greeting_list=results)
+

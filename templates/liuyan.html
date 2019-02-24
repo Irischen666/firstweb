@@ -13,23 +13,23 @@
     <div id="form-area">
         <p>请尽情留言吧:</p>
 
-        <form action="/post" method="post">
+        <form action="liuyan" method="post">
             <table>
                 <tr>
                     <th>姓名</th>
                     <td>
-                        <input  type="text" size="20" name="name" value="{{request.form.name }}">
+                        <input  type="text" size="20" name="name" value="{{name}}">
                     </td>
                 </tr>
                 <tr>
                     <th>内容</th>
                     <td>
-                        <textarea rows="5" cols="40" name="comment" value="{{request.form.comment}}"></textarea>
+                        <textarea rows="5" cols="40" name="comment" >{{comment}}</textarea>
                     </td>
                 </tr>
             </table>
             <p>
-                <button id="bt" onclick="return false;" type="submit" >提交</button>
+                <button type="submit" >提交</button>
             </p>
         </form>
 
@@ -54,36 +54,3 @@
 </body>
 </html>
 
-<script>
-
-$(function(){
-  $("#bt").click(function(){
-    post();
-  })
-})
-
-function post(){
-
-  data={name:$("#name").val(), comment:$("#comment").val(),create_at:$("#create_at")}
-  console.log(JSON.stringify(data))
-    $.ajax({
-        type : 'POST', 
-        url : 'liuyan', 
-        contentType: "application/json;charset=utf-8",
-        dataType : 'json',
-        data : JSON.stringify(data), 
-        //json 转成字符串
-        success : function (data) {
-            console.log(data.name)
-        }
-        error : function(xhr, textStatus, errorThrown) {
-            console.log("发布失败"); 
-            var msg = xhr.responseText; 
-            console.log(textStatus)
-          //  var response = JSON.parse(msg); 
-        //    console.log(response); } 
-        }})
-}
-
-
-</script>
