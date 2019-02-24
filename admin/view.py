@@ -288,7 +288,7 @@ def liuyan():
         cursorclass= pymysql.cursors.DictCursor
         )
     cursor = db.cursor()
-    sql = "SELECT name,comment,creat_at from liuyanbd"
+    sql = "SELECT name,comment,create_at from liuyanbd"
     cursor.execute(sql)
     results = cursor.fetchall()    #字典的数组
     db.close();
@@ -314,6 +314,7 @@ def liuyan1():
         )
     cursor = db.cursor()
     sql = "INSERT INTO liuyanbd(name,comment,create_at)  VALUES (%s, %s,%s) "
+    print(1)
     try:
         # 执行sql语句
         cursor.execute(sql,(name,comment,create_at))
@@ -331,3 +332,69 @@ def liuyan1():
     greeting_list=jsonify(results)
     return render_template('liuyan.html', greeting_list=results)
 
+@admin_bp.route('/vd',methods=['POST'])
+def vd():
+    name = request.form.get("name")
+    comment = request.form.get("comment")
+    dt=datetime.datetime.now()
+    create_at=dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    #验证name 是否为空，是否是字符串
+    #为空则code = 0 , 不为空则 code = 1
+    #为字符串则 vdname = 0 ,不为空则 vdname=1 
+    code = 0
+    vdname =0
+    if name:
+        code = 1
+        if isinstance('name', str) == True:
+            vdname = 1
+        else:
+            vdname = 0
+    else:
+        code = 0 
+     
+
+    #为空则ccode = 0 , 不为空则 ccode = 1
+    #为字符串则 vdct = 0 ,不为空则 vdct=1  
+    ccode = 0
+    vdct = 0 
+    if comment:
+        ccode = 1
+        if isinstance('comment', str) == True:
+            vdct = 1
+        else:
+            vdct = 0
+    else:
+        ccode = 0 
+    
+
+
+    if vdname==1 & vdct==1:
+        db = pymysql.connect(
+            host = "127.0.0.1",
+            user = "root",
+            password = "123456",
+            database = "TESTDB",
+            charset = 'utf8',
+            cursorclass= pymysql.cursors.DictCursor
+            )
+        cursor = db.cursor()
+        sql = "INSERT INTO liuyanbd(name,comment,create_at)  VALUES (%s, %s,%s) "
+        try:
+            # 执行sql语句
+            cursor.execute(sql,(name,comment,create_at))
+            # 提交到数据库执行
+            db.commit()
+        except:
+            # 如果发生错误则回滚
+            db.rollback()
+        
+        # sql = "SELECT name,comment,create_at from liuyanbd"
+        # cursor.execute(sql)
+        # results = cursor.fetchall() 
+        db.close()
+        # print(results)
+        print(code,vdname,ccode,vdct)
+        return jsonify({"code":code,"vdname":vdname,"ccode":ccode,"vdct":vdct})
+    else:
+        return jsonify({"code":code,"vdname":vdname,"ccode":ccode,"vdct":vdct})
