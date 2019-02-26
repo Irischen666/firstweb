@@ -340,36 +340,33 @@ def vd():
     create_at=dt.strftime('%Y-%m-%d %H:%M:%S')
 
     #验证name 是否为空，是否是字符串
-    #为空则code = 0 , 不为空则 code = 1
-    #为字符串则 vdname = 0 ,不为空则 vdname=1 
-    code = 0
-    vdname =0
+    msg =""
+    vdname =0  #只有同时为非空且为字符串时，vdname=1
     if name:
-        code = 1
         if isinstance('name', str) == True:
-            vdname = 1
+            vdname=1
         else:
-            vdname = 0
+           msg = "数据类型有误"
+           return jsonify({"msg":msg})
     else:
-        code = 0 
-     
+        msg = "名字不能为空"
+        return jsonify({"msg":msg})
+    print(vdname)
 
-    #为空则ccode = 0 , 不为空则 ccode = 1
     #为字符串则 vdct = 0 ,不为空则 vdct=1  
-    ccode = 0
     vdct = 0 
     if comment:
-        ccode = 1
         if isinstance('comment', str) == True:
             vdct = 1
         else:
-            vdct = 0
+            msg = "数据类型有误"
+            return jsonify({"msg":msg})
     else:
-        ccode = 0 
-    
+        msg = "comment can not be null"
+        return jsonify({"msg":msg})
+    print (vdct)
 
-
-    if vdname==1 & vdct==1:
+    while vdname==1 & vdct==1:
         db = pymysql.connect(
             host = "127.0.0.1",
             user = "root",
@@ -394,7 +391,7 @@ def vd():
         # results = cursor.fetchall() 
         db.close()
         # print(results)
-        print(code,vdname,ccode,vdct)
-        return jsonify({"code":code,"vdname":vdname,"ccode":ccode,"vdct":vdct})
-    else:
-        return jsonify({"code":code,"vdname":vdname,"ccode":ccode,"vdct":vdct})
+        print(vdname,vdct)
+        msg = "发布成功"
+        break;
+    return jsonify({"msg":msg})
