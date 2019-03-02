@@ -8,25 +8,23 @@ from db import MySQL
 @admin_bp.route('/',methods=['GET']) # 处理访问请求
 def hello_world():
     FIRST_NAME = request.form.get('name')
-    MySQL.db_init("127.0.0.1","root","123456")
-    dbname="TESTDB"
+    database= MySQL()
     param=FIRST_NAME
     sql = """INSERT INTO EMPLOYEE(FIRST_NAME,
           LAST_NAME, AGE, SEX, INCOME)
           VALUES (%s, 'Mohan', 20, 'M', 2000)"""
-    MySQL.db_exesql(dbname,sql,param)
+    database.db_exesql(sql,param)
     return jsonify(FIRST_NAME)
 
 @admin_bp.route('/getf', methods=['get'])
 def landpage1():
-    dbname="TESTDB"
-    MySQL.db_init("127.0.0.1","root","123456")
     sql="SELECT FIRST_NAME,LAST_NAME from EMPLOYEE"
-    data=MySQL.db_selectone(dbname,sql)
+    database=MySQL()
+    data=database.db_selectone(sql)
     print(data)
-    headers = {'Content-Type': 'application/json'}    ## headers中添加上content-type这个参数，指定为json格式
+    # headers = {'Content-Type': 'application/json'}    ## headers中添加上content-type这个参数，指定为json格式
    # response = request.post(url='url', headers=headers, data=json.dumps(data))    ## post的时候，将data字典形式的参数用json包转换成json格式。
-    return jsonify({data})
+    return jsonify({"Firstname":data[0],"lastname":data[1]})
 
 #下一步数据库拿数据验证登录 
 #登录
@@ -36,18 +34,17 @@ def login2():
 
 @admin_bp.route('/login',methods=['POST'])
 def login1():
-    
     data = request.get_data()
     jsondata = json.loads(data)  #将json字符串解码为python对象
     username = jsondata['username']
     password = jsondata['password']
+    print(username,password)
     code=1;
+    database=MySQL()
     try:
-        dbname="TESTDB"
-        MySQL.db_init("127.0.0.1","root","123456")
         sql = "SELECT * from register where name = %s and pwd = %s "
         param = (username,password)
-        results=MySQL.db_findall(dbname,sql,param)
+        results = database.db_exesql(sql,param)
         print (results)
         if len(results)>0:
             code = 0;                  
@@ -67,52 +64,34 @@ def signup():
 def signup1():
     username = request.form.get('username')
     password = request.form.get('password')
-    print(username,password,type(username))
-    db = pymysql.connect(
-        host = "127.0.0.1",
-        user = "root",
-        password = "123456",
-        database = "TESTDB",
-        charset = 'utf8',
-        )
-    cursor = db.cursor()
-    sql = "SELECT * from register where name = %s" 
+    # print(username,password,type(username))
     code = 1
+    database=MySQL()
+    param = (username,password)
+    print(param[0])
     try:
         # 执行SQL语句
-        cursor.execute(sql,username)
-        results = cursor.fetchall()
+        sql = "SELECT * from register where name = %s" 
+        results = database.find_all(sql,param[0])
         print (results)
         if len(results)>0:   #已经存在
             code = 0
         else:
             code = 1 
             sql = "INSERT INTO register(name,pwd) VALUE(%s,%s)"
-            cursor.execute(sql,(username,password))
-            db.commit();
+            results=database.db_exesql(sql,param)
     except Exception as e:
         print("has Error: ",e)
         return render_template("error_page.html",error=e)
-    db.close();
     return jsonify({"code":code,"username":username})
 
 
 #留言板功能
 @admin_bp.route('/liuyan',methods=['GET'])
 def liuyan():
-    db = pymysql.connect(
-        host = "127.0.0.1",
-        user = "root",
-        password = "123456",
-        database = "TESTDB",
-        charset = 'utf8',
-        cursorclass= pymysql.cursors.DictCursor
-        )
-    cursor = db.cursor()
+    database= MySQL()
     sql = "SELECT name,comment,create_at from liuyanbd"
-    cursor.execute(sql)
-    results = cursor.fetchall()    #字典的数组
-    db.close();
+    results= database.show_all(sql)
     print(results)
     greeting_list=jsonify(results)
     return render_template('liuyan.html',greeting_list=results)
@@ -125,30 +104,12 @@ def liuyan1():
     dt=datetime.datetime.now()
     create_at=dt.strftime('%Y-%m-%d %H:%M:%S')
     print(name,comment,create_at,type(create_at))
-    db = pymysql.connect(
-        host = "127.0.0.1",
-        user = "root",
-        password = "123456",
-        database = "TESTDB",
-        charset = 'utf8',
-        cursorclass= pymysql.cursors.DictCursor
-        )
-    cursor = db.cursor()
+    database = MySQL()
     sql = "INSERT INTO liuyanbd(name,comment,create_at)  VALUES (%s, %s,%s) "
-    print(1)
-    try:
-        # 执行sql语句
-        cursor.execute(sql,(name,comment,create_at))
-        # 提交到数据库执行
-        db.commit()
-    except:
-        # 如果发生错误则回滚
-        db.rollback()
-    
+    param=(name,comment,create_at)
+    results=database.db_exesql(sql,param)
     sql = "SELECT name,comment,create_at from liuyanbd"
-    cursor.execute(sql)
-    results = cursor.fetchall() 
-    db.close()
+    results=database.show_all(sql)
     print(results)
     greeting_list=jsonify(results)
     return render_template('liuyan.html', greeting_list=results)
@@ -159,7 +120,7 @@ def vd():
     comment = request.form.get("comment")
     dt=datetime.datetime.now()
     create_at=dt.strftime('%Y-%m-%d %H:%M:%S')
-
+    print(name,comment,create_at)
     #验证name 是否为空，是否是字符串
     msg =""
     vdname =0  #只有同时为非空且为字符串时，vdname=1
@@ -188,31 +149,12 @@ def vd():
     print (vdct)
 
     while vdname==1 & vdct==1:
-        db = pymysql.connect(
-            host = "127.0.0.1",
-            user = "root",
-            password = "123456",
-            database = "TESTDB",
-            charset = 'utf8',
-            cursorclass= pymysql.cursors.DictCursor
-            )
-        cursor = db.cursor()
+        database = MySQL()
+        param=(name,comment,create_at)
         sql = "INSERT INTO liuyanbd(name,comment,create_at)  VALUES (%s, %s,%s) "
-        try:
-            # 执行sql语句
-            cursor.execute(sql,(name,comment,create_at))
-            # 提交到数据库执行
-            db.commit()
-        except:
-            # 如果发生错误则回滚
-            db.rollback()
-        
-        # sql = "SELECT name,comment,create_at from liuyanbd"
-        # cursor.execute(sql)
-        # results = cursor.fetchall() 
-        db.close()
-        # print(results)
+        results=database.db_exesql(sql,param)
         print(vdname,vdct)
+        print(results)
         msg = "发布成功"
         break;
     return jsonify({"msg":msg})

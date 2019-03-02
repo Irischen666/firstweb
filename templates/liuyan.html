@@ -44,8 +44,8 @@
         <div class="entry">
             <ul>
                 {% for greeting in greeting_list%}
-                <li><h3><span id="name">{{greeting.name}}</span>留言于:<span id ="create_at">{{greeting.create_at}}</span></h3>
-                <p><span id="comment">{{greeting.comment}}</span></p></li>
+                <li><h3><span id="name">{{greeting[0]}}</span>留言于:<span id ="create_at">{{greeting[2]}}</span></h3>
+                <p><span id="comment">{{greeting[1]}}</span></p></li>
                 {% endfor %}
             </ul>
         </div>
