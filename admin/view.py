@@ -83,7 +83,7 @@ def signup1():
     except Exception as e:
         print("has Error: ",e)
         return render_template("error_page.html",error=e)
-    return jsonify({"code":code,"username":username})
+    return jsonify({"code":code,"username":param[0]})
 
 
 #留言板功能

@@ -15,13 +15,9 @@ class MySQL:
     #打卡并连接数据库
 
     def __init__(self):
-        self.__connect()
+        self.connection()
 
-    def __del__(self):
-        if(self.__db is not None):
-            self.__db.close()
-
-    def __connect(self):
+    def connection(self):   
         try:
             if (self.__db == None):
                 self.__db = pymysql.connect(
@@ -30,7 +26,6 @@ class MySQL:
                     passwd =self.__config['password'],
                     db     =self.__config['database'],
                     charset=self.__config['charset'],
-
                 )
             return self.__db;
         except Exception as e:
@@ -40,61 +35,67 @@ class MySQL:
 
     #执行语句
     def db_exesql(self,sql,param):
-        cursor = self.__connect().cursor()
+        cursor = self.connection().cursor()
         try:
             count=cursor.execute(sql,param)
             # 提交到数据库执行
-            self.__connect().commit()
+            self.connection().commit()
             return count
         except:
             # 如果发生错误则回滚
-            self.__connect().rollback()
+            self.connection().rollback()
             return False
+        self.closes()
 
     #查找全部，带参数查询
     def find_all(self,sql,param):
-        cursor = self.__connect().cursor()
+        cursor = self.connection().cursor()
         try:
             cursor.execute(sql,param)
             data = cursor.fetchall()
             print(data)
             # 提交到数据库执行
-            self.__connect().commit()
+            self.connection().commit()
         except:
             # 如果发生错误则回滚
-            self.__connect().rollback()
+            self.connection().rollback()
             return False
         return data
+        self.closes()
 
     #获取所以，不带参数查询
     def show_all(self,sql):
-        cursor = self.__connect().cursor()
+        cursor = self.connection().cursor()
         try:
             cursor.execute(sql)
             data = cursor.fetchall()
             # 提交到数据库执行
-            self.__connect().commit()
+            self.connection().commit()
             return data;
         except:
             # 如果发生错误则回滚
-            self.__connect().rollback()
+            self.connection().rollback()
             return False
-
+        self.closes()
 
     #查找一个
     def db_selectone(self,sql):
-        cursor = self.__connect().cursor()
+        cursor = self.connection().cursor()
         try:
             cursor.execute(sql)
             data = cursor.fetchone()
             # 提交到数据库执行
-            self.__connect().commit()
+            self.connection().commit()
             return data;
 
         except:
             # 如果发生错误则回滚
-            self.__connect().rollback()
+            self.connection().rollback()
             return False
-        
+        self.closes()
 
-
+    def closes(self):
+        if self.cursor != None:
+            self.cursor.close()
+        if self.__db!= None:
+            self.__db.close()
