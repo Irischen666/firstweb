@@ -8,14 +8,9 @@ from db import MySQL
 
 class Login:
     def __init__(self):
-        self.get_loginpage()
+        self.check_login()
 
-    def get_loginpage(self):
-        return render_template('login.html', title="",data={"username":"","password":""})
-
-    def check_login(self):
-        data = self.request.get_data()
-        jsondata = self.json.loads(data)  #将json字符串解码为python对象
+    def check_login(self,jsondata):
         username = self.jsondata['username']
         password = self.jsondata['password']
         print(username,password)

@@ -6,6 +6,7 @@ import time,datetime
 from db import MySQL
 from . import login
 
+
 @admin_bp.route('/',methods=['GET']) # 处理访问请求
 def hello_world():
     FIRST_NAME = request.form.get('name')
@@ -30,11 +31,15 @@ def landpage1():
 #下一步数据库拿数据验证登录 
 #登录
 @admin_bp.route('/login',methods=['GET'])
-    logina=Login()
-    logina.get_loginpage()
+def login1():
+    return render_template('login.html', title="",data={"username":"","password":""})
+
 @admin_bp.route('/login',methods=['POST'])
+def login2():
+    data = request.get_data()
+    jsondata = json.loads(data)    #将json字符串解码为python对象
     loginb=Login()
-    loginb.check_login()
+    loginb.check_login(jsondata)
 
 #注册功能
 @admin_bp.route('/register', methods = ['GET'])
