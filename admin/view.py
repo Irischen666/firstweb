@@ -4,6 +4,7 @@ import pymysql
 import json
 import time,datetime
 from db import MySQL
+from . import login
 
 @admin_bp.route('/',methods=['GET']) # 处理访问请求
 def hello_world():
@@ -29,31 +30,11 @@ def landpage1():
 #下一步数据库拿数据验证登录 
 #登录
 @admin_bp.route('/login',methods=['GET'])
-def login2():
-    return render_template('login.html', title="",data={"username":"","password":""})
-
+    logina=Login()
+    logina.get_loginpage()
 @admin_bp.route('/login',methods=['POST'])
-def login1():
-    data = request.get_data()
-    jsondata = json.loads(data)  #将json字符串解码为python对象
-    username = jsondata['username']
-    password = jsondata['password']
-    print(username,password)
-    code=1;
-    database=MySQL()
-    try:
-        sql = "SELECT * from register where name = %s and pwd = %s "
-        param = (username,password)
-        results = database.db_exesql(sql,param)
-        print (results)
-        if len(results)>0:
-            code = 0;                  
-        else:
-            code = 1;
-    except Exception as e:
-        print("has Error: ",e)
-    return jsonify({"code":code,"data":username})  
-
+    loginb=Login()
+    loginb.check_login()
 
 #注册功能
 @admin_bp.route('/register', methods = ['GET'])
