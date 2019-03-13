@@ -4,7 +4,7 @@ import pymysql
 import json
 import time,datetime
 from db import MySQL
-from . import login
+from .login import *  #from 包.文件名 import 类
 
 
 @admin_bp.route('/',methods=['GET']) # 处理访问请求
@@ -38,8 +38,11 @@ def login1():
 def login2():
     data = request.get_data()
     jsondata = json.loads(data)    #将json字符串解码为python对象
-    loginb=Login()
-    loginb.check_login(jsondata)
+    loginb=Login()  #创建对象
+    return loginb.check_login(jsondata)  
+    ##传参数  
+    
+     
 
 #注册功能
 @admin_bp.route('/register', methods = ['GET'])

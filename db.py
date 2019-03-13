@@ -40,6 +40,7 @@ class MySQL:
             count=cursor.execute(sql,param)
             # 提交到数据库执行
             self.connection().commit()
+            print(count)
             return count
         except:
             # 如果发生错误则回滚
