@@ -73,6 +73,7 @@ class MySQL:
             # 提交到数据库执行
             self.connection().commit()
             return data;
+            print(data)
         except:
             # 如果发生错误则回滚
             self.connection().rollback()

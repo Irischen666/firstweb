@@ -6,6 +6,7 @@ import time,datetime
 from db import MySQL
 from .login import *  #from 包.文件名 import 类
 from .signup import *
+from .liuyan import *
 
 @admin_bp.route('/',methods=['GET']) # 处理访问请求
 def hello_world():
@@ -60,11 +61,9 @@ def signup1():
 #留言板功能
 @admin_bp.route('/liuyan',methods=['GET'])
 def liuyan():
-    database= MySQL()
-    sql = "SELECT name,comment,create_at from liuyanbd"
-    results= database.show_all(sql)
-    print(results)
-    greeting_list=jsonify(results)
+    liuyaninfo=Liuyan()
+    results=liuyaninfo.find_liuyan()    #错题：没打括号导致返回报错 TypeError: 'method' object is not iterable
+    # print(results)
     return render_template('liuyan.html',greeting_list=results)
 
 @admin_bp.route('/liuyan',methods=['POST'])
