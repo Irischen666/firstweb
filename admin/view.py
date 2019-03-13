@@ -5,7 +5,7 @@ import json
 import time,datetime
 from db import MySQL
 from .login import *  #from 包.文件名 import 类
-
+from .signup import *
 
 @admin_bp.route('/',methods=['GET']) # 处理访问请求
 def hello_world():
@@ -53,27 +53,9 @@ def signup():
 def signup1():
     username = request.form.get('username')
     password = request.form.get('password')
-    # print(username,password,type(username))
-    code = 1
-    database=MySQL()
-    param = (username,password)
-    print(param[0])
-    try:
-        # 执行SQL语句
-        sql = "SELECT * from register where name = %s" 
-        results = database.find_all(sql,param[0])
-        print (results)
-        if len(results)>0:   #已经存在
-            code = 0
-        else:
-            code = 1 
-            sql = "INSERT INTO register(name,pwd) VALUE(%s,%s)"
-            results=database.db_exesql(sql,param)
-    except Exception as e:
-        print("has Error: ",e)
-        return render_template("error_page.html",error=e)
-    return jsonify({"code":code,"username":param[0]})
-
+    print(username,password,type(username))
+    signup=Signup()
+    return signup.register(username,password)
 
 #留言板功能
 @admin_bp.route('/liuyan',methods=['GET'])
