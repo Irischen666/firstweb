@@ -73,15 +73,10 @@ def liuyan1():
     # 格式化成2016-03-20 11:45:39形式 
     dt=datetime.datetime.now()
     create_at=dt.strftime('%Y-%m-%d %H:%M:%S')
-    print(name,comment,create_at,type(create_at))
-    database = MySQL()
-    sql = "INSERT INTO liuyanbd(name,comment,create_at)  VALUES (%s, %s,%s) "
-    param=(name,comment,create_at)
-    results=database.db_exesql(sql,param)
-    sql = "SELECT name,comment,create_at from liuyanbd"
-    results=database.show_all(sql)
-    print(results)
-    greeting_list=jsonify(results)
+    # print(name,comment,create_at,type(create_at))
+    addliuyan=Liuyan()
+    results=addliuyan.add_liuyan(name,comment,create_at)
+    # print(results)
     return render_template('liuyan.html', greeting_list=results)
 
 @admin_bp.route('/vd',methods=['POST'])

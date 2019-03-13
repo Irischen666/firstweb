@@ -15,3 +15,13 @@ class Liuyan:
         results= database.show_all(sql)
         # print(results)
         return results
+    
+    def add_liuyan(self,name,comment,create_at):
+        database = MySQL()
+        sql = "INSERT INTO liuyanbd(name,comment,create_at)  VALUES (%s, %s,%s) "
+        param=(name,comment,create_at)
+        results=database.db_exesql(sql,param)
+        sql = "SELECT name,comment,create_at from liuyanbd"
+        results= database.show_all(sql)
+        # print(results)
+        return results
